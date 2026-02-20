@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useState } from 'react';
 import { Inter, Noto_Sans_Lao } from "next/font/google";
 import "./globals.css";
 import { SpeedInsights } from "@vercel/speed-insights/next"
@@ -8,8 +8,11 @@ import { PropertiesProvider } from "@/app/context/PropertiesContext";
 import Script from "next/script";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { usePathname } from 'next/navigation';
+import BottomNavigation from "@/components/BottomNavigation";
+import SlideMenu from "@/components/SlideMenu";
+import { usePathname, useRouter } from 'next/navigation';
 import LoginModal from '@/components/LoginModal';
+import { getSavedPropertyIds } from '@/lib/localStorage';
 
 const inter = Inter({ subsets: ["latin"] });
 const notoSansLao = Noto_Sans_Lao({ subsets: ["lao"], weight: ["400", "700"] });
@@ -19,12 +22,39 @@ export default function RootLayout({ children }: {
 }) {
   const [activePage, setActivePage] = React.useState('home');
   const [showLogin, setShowLogin] = React.useState(false);
+  const [isSlideMenuOpen, setIsSlideMenuOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
   const isDashboardPage = pathname?.startsWith('/dashboard') ?? false;
 
   const navigateTo = (page: string) => {
     setActivePage(page);
+    const pathMap: Record<string, string> = {
+      'home': '/',
+      'listings': '/listings',
+      'saved': '/account/saved-properties',
+      'services': '/services',
+      'menu': '#',
+      'saved-search': '/account/saved-searches',
+      'contacted': '/account/contacted',
+      'seen': '/account/seen-properties',
+      'recent-searches': '/account/recent-searches',
+      'post-property': '/dashboard/properties/add',
+      'smart-deals': '/listings?smart-deals=true',
+      'sell-rent': '/dashboard/properties/add',
+      'zero-brokerage': '/listings?zero-brokerage=true',
+    };
+    const path = pathMap[page] || `/${page}`;
+    if (path !== '#') {
+      router.push(path);
+    }
   };
+
+  const handleMenuClick = () => {
+    setIsSlideMenuOpen(true);
+  };
+
+  const wishlistCount = typeof window !== 'undefined' ? getSavedPropertyIds().length : 0;
 
   return (
     <html lang="en">
@@ -38,13 +68,28 @@ export default function RootLayout({ children }: {
         <PropertiesProvider>
           <AuthProvider>
             {showLogin && <LoginModal setShowLogin={setShowLogin} />}
-            {!isDashboardPage && <Header
-              setShowLogin={setShowLogin}
-            />}
+            {!isDashboardPage && <Header setShowLogin={setShowLogin} />}
             <main className={!isDashboardPage ? "pt-0" : ""}>
               {children}
             </main>
             {!isDashboardPage && <Footer navigateTo={navigateTo} />}
+            
+            {/* Mobile Bottom Navigation */}
+            {!isDashboardPage && (
+              <BottomNavigation
+                activePage={activePage}
+                navigateTo={navigateTo}
+                onMenuClick={handleMenuClick}
+                wishlistCount={wishlistCount}
+              />
+            )}
+            
+            {/* Mobile Slide Menu */}
+            <SlideMenu
+              isOpen={isSlideMenuOpen}
+              onClose={() => setIsSlideMenuOpen(false)}
+              navigateTo={navigateTo}
+            />
           </AuthProvider>
         </PropertiesProvider>
         <SpeedInsights />

@@ -1,36 +1,43 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Heart } from 'lucide-react';
 import PropertyCard from '@/components/PropertyCard';
 import { Property } from '@/lib/types';
-import { getSavedProperties, getPropertiesByIds } from '@/lib/firebase/firestore';
-import { useAuth } from '@/context/AuthContext';
+import { getSavedPropertyIds } from '@/lib/localStorage';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { db } from '@/lib/firebase-client';
 
 export default function SavedPropertiesPage() {
+  const router = useRouter();
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { user } = useAuth();
 
   useEffect(() => {
     const fetchSavedProperties = async () => {
-      if (!user) {
-        setLoading(false);
-        setError('Please log in to see your saved properties.');
-        return;
-      }
-
       try {
         setLoading(true);
-        const savedPropertyIds = await getSavedProperties(user.uid);
-        if (savedPropertyIds.length > 0) {
-          const propertyIds = savedPropertyIds.map((p: any) => p.propertyId);
-          const fetchedProperties = await getPropertiesByIds(propertyIds);
-          setProperties(fetchedProperties);
-        } else {
+        const savedPropertyIds = getSavedPropertyIds();
+        
+        if (savedPropertyIds.length === 0) {
           setProperties([]);
+          setLoading(false);
+          return;
         }
+
+        // Fetch properties from Firestore based on saved IDs
+        const propertiesCollection = collection(db, 'properties');
+        const q = query(propertiesCollection, where('__name__', 'in', savedPropertyIds.slice(0, 10)));
+        const snapshot = await getDocs(q);
+        
+        const fetchedProperties: Property[] = [];
+        snapshot.forEach(doc => {
+          fetchedProperties.push({ id: doc.id, ...doc.data() } as Property);
+        });
+        
+        setProperties(fetchedProperties);
       } catch (err) {
         setError('Failed to fetch saved properties.');
         console.error(err);
@@ -40,7 +47,13 @@ export default function SavedPropertiesPage() {
     };
 
     fetchSavedProperties();
-  }, [user]);
+  }, []);
+
+  const handleViewProperty = (property: Property) => {
+    if (property.id) {
+      router.push(`/listings/${property.id}`);
+    }
+  };
 
   return (
     <div className="bg-slate-50 min-h-screen">
@@ -74,7 +87,7 @@ export default function SavedPropertiesPage() {
         {!loading && !error && properties.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                 {properties.map((property) => (
-                    <PropertyCard key={property.id} property={property} />
+                    <PropertyCard key={property.id} property={property} onViewProperty={handleViewProperty} />
                 ))}
             </div>
         )}

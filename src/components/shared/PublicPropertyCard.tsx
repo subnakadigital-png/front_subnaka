@@ -1,11 +1,12 @@
 'use client';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Bed, Bath, MapPin, Clock, Share2, Heart, Building, Home } from 'lucide-react';
 import { FaRulerCombined } from 'react-icons/fa';
 import { Property } from '@/lib/types';
 import { formatPrice } from '@/lib/utils';
+import { togglePropertyId, isPropertySaved } from '@/lib/localStorage';
 
 interface PublicPropertyCardProps {
   prop: Property;
@@ -13,6 +14,11 @@ interface PublicPropertyCardProps {
 
 const PublicPropertyCard: React.FC<PublicPropertyCardProps> = ({ prop }) => {
   const router = useRouter();
+  const [isSaved, setIsSaved] = useState(false);
+
+  useEffect(() => {
+    setIsSaved(isPropertySaved(prop.id || ''));
+  }, [prop.id]);
 
   const handleCardClick = () => {
     router.push(`/listings/${prop.id}`);
@@ -26,17 +32,23 @@ const PublicPropertyCard: React.FC<PublicPropertyCardProps> = ({ prop }) => {
 
   const handleSave = (e: React.MouseEvent) => {
     e.stopPropagation();
-    alert('Property saved to wishlist!');
+    const saved = togglePropertyId(prop.id || '');
+    setIsSaved(saved);
+    if (saved) {
+      alert('Property saved to wishlist!');
+    } else {
+      alert('Property removed from wishlist!');
+    }
   };
 
   const getImageUrl = () => {
-    const images = prop.images || prop.imageUrls || [];
+    const images = (prop as any).images || prop.imageUrls || [];
     if (images.length > 0) return images[0];
     if (prop.image) return prop.image;
-    return '/placeholder.png';
+    return 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80';
   };
   const displayImage = getImageUrl();
-  const isPlaceholder = displayImage === '/placeholder.png';
+  const isPlaceholder = false; // Images always have a valid URL now
 
   const saleType = prop.category; // 'sale' or 'rent'
   const propertyCategory = prop.type; // 'House', 'Apartment', etc.
@@ -56,7 +68,7 @@ const PublicPropertyCard: React.FC<PublicPropertyCardProps> = ({ prop }) => {
     return Math.floor(seconds) + " seconds ago";
   };
 
-  const CategoryIcon = propertyCategory === 'Apartment' ? Building : Home;
+  const CategoryIcon = propertyCategory === 'apartment' ? Building : Home;
 
   return (
     <div
@@ -78,11 +90,10 @@ const PublicPropertyCard: React.FC<PublicPropertyCardProps> = ({ prop }) => {
 
         {/* Sale / Rent Badge */}
         <span
-          className={`absolute top-6 left-6 font-bold capitalize px-3 py-1 rounded-md text-xs ${
-            saleType === 'sale'
-              ? 'bg-blue-100 text-blue-800'
-              : 'bg-green-100 text-green-800'
-          }`}
+          className={`absolute top-6 left-6 font-bold capitalize px-3 py-1 rounded-md text-xs ${saleType === 'sale'
+            ? 'bg-blue-100 text-blue-800'
+            : 'bg-green-100 text-green-800'
+            }`}
         >
           For {saleType}
         </span>
@@ -97,9 +108,14 @@ const PublicPropertyCard: React.FC<PublicPropertyCardProps> = ({ prop }) => {
           </button>
           <button
             onClick={handleSave}
-            className="bg-white/80 p-2.5 rounded-full backdrop-blur-sm hover:bg-white focus:outline-none shadow-md"
+            className={`p-2.5 rounded-full backdrop-blur-sm focus:outline-none shadow-md transition-colors ${isSaved ? 'bg-red-500 hover:bg-red-600' : 'bg-white/80 hover:bg-white'
+              }`}
           >
-            <Heart size={16} className="text-gray-800" />
+            <Heart
+              size={16}
+              className={isSaved ? 'text-white' : 'text-gray-800'}
+              fill={isSaved ? 'currentColor' : 'none'}
+            />
           </button>
         </div>
       </div>
@@ -109,9 +125,9 @@ const PublicPropertyCard: React.FC<PublicPropertyCardProps> = ({ prop }) => {
         <div className="flex justify-between items-start gap-4">
           {/* Left Column */}
           <div className="flex-auto min-w-0">
-          <h3 className="text-xl font-bold text-gray-900 line-clamp-1">
-  {prop.title}
-</h3>
+            <h3 className="text-xl font-bold text-gray-900 line-clamp-1">
+              {prop.title}
+            </h3>
 
 
 
@@ -148,11 +164,11 @@ const PublicPropertyCard: React.FC<PublicPropertyCardProps> = ({ prop }) => {
           <span className="flex items-center gap-2 font-medium">
             <CategoryIcon size={16} />
             {propertyCategory
-  ? propertyCategory.charAt(0).toUpperCase() +
-    propertyCategory.slice(1).toLowerCase()
-  : ''}
+              ? propertyCategory.charAt(0).toUpperCase() +
+              propertyCategory.slice(1).toLowerCase()
+              : ''}
 
-            </span>
+          </span>
           <span className="flex items-center gap-1.5">
             <Clock size={14} />
             {timeAgo(prop.createdAt)}
@@ -161,7 +177,7 @@ const PublicPropertyCard: React.FC<PublicPropertyCardProps> = ({ prop }) => {
       </div>
     </div>
   );
-  
+
 };
 
 export default PublicPropertyCard;

@@ -5,8 +5,7 @@ import Image from 'next/image';
 import { Share2, Bed, Bath, Car, Ruler, MapPin, Clock, Heart } from 'lucide-react';
 import { Property } from '@/lib/types';
 import { formatRelativeTime } from '@/lib/utils';
-import { useAuth } from '@/context/AuthContext';
-import { saveProperty, unsaveProperty, isPropertySaved } from '@/lib/firebase/firestore';
+import { togglePropertyId, isPropertySaved } from '@/lib/localStorage';
 import ShareModal from '@/components/ShareModal';
 
 interface PropertyCardProps {
@@ -17,17 +16,12 @@ interface PropertyCardProps {
 const PropertyCard: React.FC<PropertyCardProps> = ({ property, onViewProperty }) => {
   const [isSaved, setIsSaved] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-  const { user, setShowLogin } = useAuth();
 
   useEffect(() => {
-    const checkSavedStatus = async () => {
-      if (user && property.id) {
-        const saved = await isPropertySaved(user.uid, property.id);
-        setIsSaved(saved);
-      }
-    };
-    checkSavedStatus();
-  }, [user, property.id]);
+    if (property.id) {
+      setIsSaved(isPropertySaved(property.id));
+    }
+  }, [property.id]);
 
   const handleShareClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -36,23 +30,10 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onViewProperty })
 
   const handleSaveClick = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!user) {
-      setShowLogin(true);
-      return;
-    }
     if (!property.id) return;
-
-    try {
-      if (isSaved) {
-        await unsaveProperty(user.uid, property.id);
-        setIsSaved(false);
-      } else {
-        await saveProperty(user.uid, property.id);
-        setIsSaved(true);
-      }
-    } catch (error) {
-      console.error("Error updating saved status:", error);
-    }
+    
+    const saved = togglePropertyId(property.id);
+    setIsSaved(saved);
   };
   
   const handleViewClick = (e: React.MouseEvent) => {
@@ -62,9 +43,14 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onViewProperty })
     }
   };
 
-  const imageUrl = property.images && property.images.length > 0
-    ? property.images[0]
-    : 'https://via.placeholder.com/400x300?text=Subnaka+Property';
+  const getImageUrl = () => {
+    const images = property.imageUrls || [];
+    if (images.length > 0) return images[0];
+    if (property.image) return property.image;
+    return '/placeholder.svg';
+  };
+  const displayImage = getImageUrl();
+  const isPlaceholder = displayImage === '/placeholder.svg' || displayImage.includes('placeholder');
     
   const propertyName = property.title || 'Unnamed Property';
   const propertyLocation = property.location || 'Location not specified';
@@ -74,13 +60,16 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onViewProperty })
   return (
     <>
       <div onClick={handleViewClick} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 group font-sans cursor-pointer">
-        <div className="relative">
+        <div className="relative h-56">
           <Image 
-            src={imageUrl} 
+            src={displayImage} 
             alt={`Image of ${propertyName}`}
-            width={400}
-            height={300}
+            fill
             className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500"
+            unoptimized={isPlaceholder}
+            onError={(e) => {
+              e.currentTarget.src = '/placeholder.svg';
+            }}
           />
           <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1.5">
               <div className={`w-2 h-2 rounded-full ${property.status === 'Active' ? 'bg-green-500' : 'bg-gray-400'}`}></div>
@@ -104,7 +93,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onViewProperty })
                     {propertyLocation}
                   </p>
               </div>
-              <div className="text-right flex-shrink-0 ml-4">
+              <div className="text-right shrink-0 ml-4">
                   <p className="text-xs text-gray-400">Price (Kip)</p>
                   <p className="text-xl font-bold text-yellow-600 mt-1">₭{price.toLocaleString()}</p>
               </div>
@@ -121,7 +110,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onViewProperty })
               {property.bathrooms && (
                  <div className="flex items-center gap-2">
                   <Bath className="w-5 h-5 text-gray-400"/>
-                  <span className-="font-medium">{property.bathrooms}</span>
+                  <span className="font-medium">{property.bathrooms}</span>
                 </div>
               )}
               {property.area && (

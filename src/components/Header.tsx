@@ -2,12 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { ChevronDown, User, PlusCircle, Heart, Globe } from 'lucide-react'; // เพิ่ม Globe icon
+import { ChevronDown, User, PlusCircle, Heart, Globe } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { auth } from '@/lib/firebase-client';
-import { getSavedProperties } from '@/lib/firebase/firestore';
+import { getSavedPropertyIds } from '@/lib/localStorage';
 
 export default function Header({
   setShowLogin,
@@ -43,12 +43,25 @@ export default function Header({
   }, []);
 
   useEffect(() => {
-    if (user) {
-      getSavedProperties(user.uid).then(properties => {
-        setWishlistCount(properties.length);
-      });
-    }
-  }, [user]);
+    const updateWishlistCount = () => {
+      const savedIds = getSavedPropertyIds();
+      setWishlistCount(savedIds.length);
+    };
+    
+    // Initial count
+    updateWishlistCount();
+    
+    // Listen for storage changes (in case user saves from another tab)
+    window.addEventListener('storage', updateWishlistCount);
+    
+    // Custom event for same-tab updates
+    window.addEventListener('wishlistUpdated', updateWishlistCount);
+    
+    return () => {
+      window.removeEventListener('storage', updateWishlistCount);
+      window.removeEventListener('wishlistUpdated', updateWishlistCount);
+    };
+  }, []);
 
   const handleLogout = async () => {
     await auth.signOut();
@@ -66,7 +79,7 @@ export default function Header({
   return (
     <header className={headerClasses}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex justify-between items-center">
-        <div className="flex-shrink-0">
+        <div className="shrink-0">
           <Link href="/" className="cursor-pointer">
             <Image src="/logo new.png" alt="Subnaka Logo" width={120} height={30} className="object-contain" />
           </Link>
