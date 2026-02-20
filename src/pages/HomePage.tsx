@@ -60,7 +60,7 @@ export default function HomePage({
       {/* Hero Section */}
       <section className="relative h-[650px] md:h-[650px] w-full flex flex-col items-center justify-center text-white">
         <div className="absolute inset-0 z-0">
-          <Image src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80" alt="Hero background image" layout="fill" objectFit="cover" />
+          <Image src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80" alt="Hero background image" fill className="object-cover" />
           <div className="absolute inset-0 bg-linear-to-b from-black/40 to-black/60"></div>
         </div>
 
@@ -152,7 +152,7 @@ export default function HomePage({
               return (
                <div key={p.id} onClick={() => onViewProperty(p)} className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition border border-gray-100 cursor-pointer group">
                   <div className="relative h-48 md:h-56 overflow-hidden">
-                     <Image src={p.image || ''} alt={p.title} layout="fill" objectFit="cover" className="group-hover:scale-105 transition duration-500" />
+                     <Image src={p.image || ''} alt={p.title} fill className="object-cover group-hover:scale-105 transition duration-500" />
                      <span className="absolute top-2 left-2 md:top-3 md:left-3 bg-white/90 px-1.5 py-0.5 md:px-2 md:py-1 rounded text-[10px] md:text-xs font-bold uppercase text-gray-800">{p.type}</span>
                      <button 
                         onClick={(e) => toggleWishlist(e, p.id.toString())} 
@@ -265,7 +265,7 @@ export default function HomePage({
       <section className="py-8 px-4 bg-white border-t border-gray-200">
         <div className="max-w-7xl mx-auto">
           <div className="relative rounded-2xl md:rounded-3xl overflow-hidden h-48 md:h-64 flex items-center shadow-lg md:shadow-xl group cursor-pointer" onClick={() => navigateTo('sell')}>
-             <Image src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80" alt="Modern living room" layout="fill" objectFit="cover" className="group-hover:scale-105 transition duration-700" />
+             <Image src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80" alt="Modern living room" fill className="object-cover group-hover:scale-105 transition duration-700" />
              <div className="absolute inset-0 bg-linear-to-r from-gray-900 via-gray-900/80 to-transparent"></div>
              <div className="relative z-10 px-6 md:px-12 max-w-xl text-white">
                 <h2 className="text-xl md:text-4xl font-bold mb-2 md:mb-3">List your property for <span className="text-yellow-500">FREE</span></h2>
@@ -299,7 +299,7 @@ export default function HomePage({
                </div>
                <div className="w-full md:w-1/2">
                    <div className="relative h-[250px] md:h-[400px] w-full">
-                       <Image src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Construction site" layout="fill" objectFit="cover" className="rounded-xl md:rounded-2xl shadow-lg md:shadow-2xl" />
+                       <Image src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Construction site" fill className="object-cover rounded-xl md:rounded-2xl shadow-lg md:shadow-2xl" />
                        <div className="absolute -bottom-4 -left-4 md:-bottom-6 md:-left-6 bg-white p-4 md:p-6 rounded-lg md:rounded-xl shadow-xl border border-gray-100 hidden md:block">
                            <div className="flex items-center gap-3 md:gap-4">
                                <div className="bg-yellow-500 p-2 md:p-3 rounded-full text-white"><Hammer className="w-5 h-5 md:w-6 md:h-6" /></div>

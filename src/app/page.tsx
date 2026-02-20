@@ -11,7 +11,17 @@ import {
   CheckCircle,
   ArrowRight,
   PlusCircle,
-  Loader
+  Loader,
+  Home,
+  Building2,
+  Store,
+  Trees,
+  LocateFixed,
+  Sparkles,
+  Percent,
+  Palette,
+  TrendingUp,
+  Scale
 } from 'lucide-react';
 import { collection, getDocs, query, where, limit, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase-client';
@@ -53,6 +63,7 @@ export default function HomePage() {
     pitch: 0,
     padding: { top: 20, bottom: 20, left: 20, right: 20 }
   });
+  const [userLocation, setUserLocation] = useState<{longitude: number; latitude: number} | null>(null);
 
   useEffect(() => {
     const fetchProperties = async () => {
@@ -131,46 +142,168 @@ export default function HomePage() {
     setViewState(viewState);
   };
 
+  const handleMyLocation = () => {
+    if (!navigator.geolocation) {
+      alert('Geolocation is not supported by your browser');
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        
+        // Store user location for blue dot marker
+        setUserLocation({ longitude, latitude });
+        
+        // Update map view to user's location
+        setViewState(prev => ({
+          ...prev,
+          longitude,
+          latitude,
+          zoom: 14,
+          transitionDuration: 1500,
+          transitionInterpolator: new FlyToInterpolator()
+        }));
+
+        // Scroll to map section
+        const mapElement = document.getElementById('map-section');
+        if (mapElement) {
+          mapElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      },
+      (error) => {
+        console.error('Error getting location:', error);
+        alert('Unable to retrieve your location. Please check your browser permissions.');
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  };
+
   const selectedProperty = selectedId ? properties.find(p => p.id === selectedId) : null;
 
   return (
     <div className="animate-in fade-in duration-300">
       <section className="relative h-[650px] w-full flex flex-col items-center justify-center text-white">
         <div className="absolute inset-0 z-0">
-          <Image src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80" alt="Hero background" layout="fill" objectFit="cover" priority />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-black/60"></div>
+          <Image src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80" alt="Hero background" fill className="object-cover" priority />
+          <div className="absolute inset-0 bg-linear-to-b from-black/40 to-black/60"></div>
         </div>
 
         <div className="w-full max-w-6xl px-4 flex flex-col items-center relative z-10">
-          <div className="text-center">
+          <div className="text-center mb-8">
             <h1 className="text-4xl md:text-6xl font-bold mb-3 drop-shadow-md">Find Your Place in Laos</h1>
-            <p className="text-lg md:text-xl text-white/90 mb-10 font-light">Vientiane • Luang Prabang • Pakse</p>
+            <p className="text-lg md:text-xl text-white/90 font-light">Vientiane • Luang Prabang • Pakse • Savannakhet</p>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-auto p-2 text-gray-800">
-            <div className="flex items-center gap-8 px-6 py-2 border-b border-gray-100 mb-2">
-              {['sale', 'rent'].map((tab) => (
+          {/* Enhanced Search Box */}
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-auto overflow-hidden">
+            {/* Tabs */}
+            <div className="flex gap-8 px-6 pt-4 pb-2">
+              {[
+                { id: 'buy', label: 'BUY' },
+                { id: 'rent', label: 'RENT' },
+                { id: 'commercial', label: 'COMMERCIAL' },
+                { id: 'land', label: 'LAND' },
+              ].map((tab) => (
                 <button
-                  key={tab}
-                  onClick={() => setSearchTab(tab)}
-                  className={`text-sm font-bold pb-2 transition-all capitalize ${searchTab === tab ? 'text-yellow-500 border-b-2 border-yellow-500' : 'text-gray-500 hover:text-gray-800'}`}
+                  key={tab.id}
+                  onClick={() => setSearchTab(tab.id)}
+                  className={`text-sm font-bold transition-all pb-2 border-b-2 ${
+                    searchTab === tab.id
+                      ? 'text-yellow-500 border-yellow-500'
+                      : 'text-gray-400 border-transparent hover:text-gray-600'
+                  }`}
                 >
-                  {tab}
+                  {tab.label}
                 </button>
               ))}
             </div>
-            <div className="flex flex-col md:flex-row items-center gap-2 p-1">
-              <div className="flex-1 w-full relative">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-yellow-500"><MapPin className="w-5 h-5" /></div>
-                <input type="text" placeholder="Search for a location..." className="w-full pl-12 pr-4 py-3.5 bg-white hover:bg-gray-50 rounded-xl border-none outline-none focus:ring-2 focus:ring-yellow-500 text-gray-700 font-medium" />
+
+            {/* Search Fields */}
+            <div className="p-4">
+              <div className="flex flex-col md:flex-row items-stretch gap-3">
+                {/* Location Selector */}
+                <div className="flex-1 relative">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-yellow-500">
+                    <MapPin className="w-5 h-5" />
+                  </div>
+                  <select className="w-full pl-12 pr-4 py-3.5 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-yellow-500 text-gray-700 font-medium appearance-none cursor-pointer">
+                    <option>Select Location</option>
+                    <option>Vientiane</option>
+                    <option>Luang Prabang</option>
+                    <option>Pakse</option>
+                    <option>Vang Vieng</option>
+                    <option>Savannakhet</option>
+                    <option>Thakhek</option>
+                  </select>
+                </div>
+
+                {/* Property Type */}
+                <div className="flex-1 relative">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-yellow-500">
+                    <Home className="w-5 h-5" />
+                  </div>
+                  <select className="w-full pl-12 pr-4 py-3.5 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-yellow-500 text-gray-700 font-medium appearance-none cursor-pointer">
+                    <option>Property Type</option>
+                    <option>House</option>
+                    <option>Apartment</option>
+                    <option>Villa</option>
+                    <option>Condo</option>
+                    <option>Land</option>
+                    <option>Office</option>
+                  </select>
+                </div>
+
+                {/* My Location Button */}
+                <button 
+                  onClick={handleMyLocation}
+                  className="flex items-center justify-center gap-2 px-4 py-3.5 bg-gray-100 hover:bg-gray-200 rounded-xl text-gray-600 font-medium transition whitespace-nowrap"
+                >
+                  <LocateFixed className="w-5 h-5" />
+                  <span className="hidden sm:inline">My Location</span>
+                </button>
+
+                {/* Search Button */}
+                <button 
+                  onClick={() => navigateTo(`/listings?type=${searchTab}`)}
+                  className="flex items-center justify-center gap-2 px-8 py-3.5 bg-yellow-500 hover:bg-yellow-600 text-white rounded-xl font-bold shadow-md transition whitespace-nowrap"
+                >
+                  Search <Search className="w-4 h-4" />
+                </button>
               </div>
-              <button onClick={() => navigateTo(`/listings?type=${searchTab}`)} className="w-full md:w-auto bg-yellow-500 hover:bg-yellow-600 text-white px-8 py-3.5 rounded-xl font-bold shadow-md transition flex items-center justify-center gap-2">
-                Search <Search className="w-4 h-4" />
-              </button>
             </div>
+          </div>
+
+          {/* Popular Cities */}
+          <div className="flex items-center gap-3 mt-6 flex-wrap justify-center">
+            <span className="text-white/80 text-sm flex items-center gap-1">
+              <ArrowRight className="w-4 h-4" /> Popular:
+            </span>
+            {['Vientiane', 'Luang Prabang', 'Pakse', 'Vang Vieng', 'Savannakhet', 'Thakhek'].map((city) => (
+              <button
+                key={city}
+                onClick={() => navigateTo(`/listings?location=${city}`)}
+                className="px-4 py-1.5 bg-black/30 hover:bg-black/50 backdrop-blur-sm text-white text-sm rounded-full transition border border-white/20"
+              >
+                {city}
+              </button>
+            ))}
+          </div>
+
+          {/* Post Property CTA */}
+          <div className="mt-6">
+            <button 
+              onClick={() => navigateTo('/dashboard/properties/add')}
+              className="flex items-center gap-2 px-5 py-2.5 bg-black/40 hover:bg-black/60 backdrop-blur-sm text-white rounded-full transition border border-white/20 text-sm"
+            >
+              <PlusCircle className="w-4 h-4 text-yellow-400" />
+              Are you a Property Owner? <span className="text-yellow-400 font-semibold underline">Sell / Rent for FREE →</span>
+            </button>
           </div>
         </div>
       </section>
+
+      
 
       <section id="map-section" className="py-12 bg-gray-50/50">
         <div className="max-w-7xl mx-auto px-4">
@@ -186,6 +319,7 @@ export default function HomePage() {
                 onViewStateChange={handleViewStateChange}
                 selectedId={selectedId}
                 onSelect={handlePropertySelect}
+                userLocation={userLocation}
               />
               {selectedProperty && (
                 <MapPopup
@@ -246,8 +380,8 @@ export default function HomePage() {
       <section className="py-8 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="relative rounded-2xl overflow-hidden h-64 flex items-center shadow-xl group cursor-pointer" onClick={() => navigateTo('/dashboard/properties/add')}>
-            <Image src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1600&q=80" alt="Living room" layout="fill" objectFit="cover" className="group-hover:scale-105 transition duration-700" />
-            <div className="absolute inset-0 bg-gradient-to-r from-gray-900/80 to-transparent"></div>
+            <Image src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1600&q=80" alt="Living room" fill className="object-cover group-hover:scale-105 transition duration-700" />
+            <div className="absolute inset-0 bg-linear-to-r from-gray-900/80 to-transparent"></div>
             <div className="relative z-10 px-12 max-w-xl text-white">
               <h2 className="text-4xl font-bold mb-3">List your property for <span className="text-yellow-500">FREE</span></h2>
               <p className="text-gray-200 text-lg mb-6">Reach thousands of potential buyers and renters daily.</p>
@@ -279,12 +413,70 @@ export default function HomePage() {
             </div>
             <div className="w-full md:w-1/2">
               <div className="relative h-[400px] w-full">
-                <Image src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=1000&q=80" alt="Construction" layout="fill" objectFit="cover" className="rounded-2xl shadow-2xl" />
+                <Image src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=1000&q=80" alt="Construction" fill className="object-cover rounded-2xl shadow-2xl" />
               </div>
             </div>
           </div>
         </div>
       </section>
+    {/* Sponsored Services Section */}
+      <section className="py-8 px-4 bg-gray-50">
+        <div className="max-w-6xl mx-auto">
+          <p className="text-xs text-gray-400 font-medium mb-4 flex items-center gap-1">
+            <Sparkles className="w-3 h-3" /> SPONSORED
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Home Loans */}
+            <div className="bg-blue-600 rounded-xl p-5 text-white hover:shadow-lg transition cursor-pointer">
+              <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center mb-3">
+                <Percent className="w-5 h-5" />
+              </div>
+              <h3 className="font-bold text-lg mb-1">Home Loans</h3>
+              <p className="text-sm text-white/80 mb-4">Low rates @ 6.5%.</p>
+              <button className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm font-medium transition">
+                Check
+              </button>
+            </div>
+
+            {/* Interiors */}
+            <div className="bg-yellow-500 rounded-xl p-5 text-white hover:shadow-lg transition cursor-pointer">
+              <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center mb-3">
+                <Palette className="w-5 h-5" />
+              </div>
+              <h3 className="font-bold text-lg mb-1">Interiors</h3>
+              <p className="text-sm text-white/80 mb-4">Turnkey solutions.</p>
+              <button className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm font-medium transition">
+                Book
+              </button>
+            </div>
+
+            {/* Valuation */}
+            <div className="bg-purple-600 rounded-xl p-5 text-white hover:shadow-lg transition cursor-pointer">
+              <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center mb-3">
+                <TrendingUp className="w-5 h-5" />
+              </div>
+              <h3 className="font-bold text-lg mb-1">Valuation</h3>
+              <p className="text-sm text-white/80 mb-4">Know your property&apos;s worth.</p>
+              <button className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm font-medium transition">
+                Get Report
+              </button>
+            </div>
+
+            {/* Legal Help */}
+            <div className="bg-emerald-600 rounded-xl p-5 text-white hover:shadow-lg transition cursor-pointer">
+              <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center mb-3">
+                <Scale className="w-5 h-5" />
+              </div>
+              <h3 className="font-bold text-lg mb-1">Legal Help</h3>
+              <p className="text-sm text-white/80 mb-4">Expert property law advice.</p>
+              <button className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm font-medium transition">
+                Consult
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
+    
   );
 }

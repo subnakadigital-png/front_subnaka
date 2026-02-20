@@ -115,7 +115,7 @@ export default function AboutPage() {
 function TeamMember({ name, role, img }: { name: string; role: string; img: string }) {
   return (
     <div className="group">
-      <div className="relative overflow-hidden rounded-2xl mb-4 aspect-[3/4]">
+      <div className="relative overflow-hidden rounded-2xl mb-4 aspect-3/4">
         <Image 
           src={img}
           alt={name}

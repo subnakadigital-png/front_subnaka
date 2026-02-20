@@ -43,7 +43,7 @@ const ShareModal: React.FC<ShareModalProps> = ({ property, onClose }) => {
             </a>
           </div>
           <div className="flex items-center border rounded-md p-2">
-            <input type="text" readOnly value={propertyUrl} className="text-sm flex-grow bg-transparent focus:outline-none"/>
+            <input type="text" readOnly value={propertyUrl} className="text-sm grow bg-transparent focus:outline-none"/>
             <button onClick={copyLink} className="ml-2 text-sm font-semibold text-blue-600 hover:text-blue-800">
               <Copy size={20} />
             </button>

@@ -398,7 +398,7 @@ export default function AddPropertyView({ setActiveTab, onPropertyAdded }: AddPr
                       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-3 gap-4">
                           {imageFiles.map((imageFile) => (
                               <div key={imageFile.id} className="relative aspect-square">
-                                  <Image src={imageFile.preview} alt={`Preview`} layout="fill" className="object-cover rounded-lg" />
+                                  <Image src={imageFile.preview} alt={`Preview`} fill className="object-cover rounded-lg" />
                                   {isSaving && imageFile.progress < 100 && (
                                     <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg">
                                         <div className="w-full bg-slate-200 rounded-full h-2.5 mx-2">

@@ -47,10 +47,10 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onViewProperty })
     const images = property.imageUrls || [];
     if (images.length > 0) return images[0];
     if (property.image) return property.image;
-    return '/placeholder.svg';
+    return '/placeholder.png';
   };
   const displayImage = getImageUrl();
-  const isPlaceholder = displayImage === '/placeholder.svg' || displayImage.includes('placeholder');
+  const isPlaceholder = displayImage === '/placeholder.png' || displayImage.includes('placeholder');
     
   const propertyName = property.title || 'Unnamed Property';
   const propertyLocation = property.location || 'Location not specified';
@@ -65,10 +65,10 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onViewProperty })
             src={displayImage} 
             alt={`Image of ${propertyName}`}
             fill
-            className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500"
+            className="object-cover group-hover:scale-105 transition-transform duration-500"
             unoptimized={isPlaceholder}
             onError={(e) => {
-              e.currentTarget.src = '/placeholder.svg';
+              e.currentTarget.src = '/placeholder.png';
             }}
           />
           <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1.5">

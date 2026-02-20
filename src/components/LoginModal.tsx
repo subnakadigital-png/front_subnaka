@@ -67,7 +67,7 @@ export default function LoginModal({ setShowLogin }: { setShowLogin: (show: bool
 
   if (isSigningIn) {
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-white/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-white/80 backdrop-blur-sm">
             <div className="text-center">
                 <h3 className="text-xl font-bold">Signing in...</h3>
                 <p>Please follow the instructions in the pop-up window.</p>
@@ -77,9 +77,9 @@ export default function LoginModal({ setShowLogin }: { setShowLogin: (show: bool
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
+    <div className="fixed inset-0 z-100 flex items-center justify-center p-4 animate-in fade-in duration-300">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-md" onClick={() => setShowLogin(false)}></div>
-      <div className="relative w-full max-w-lg bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-2xl transform animate-in zoom-in-95 duration-300">
+      <div className="relative w-full max-w-lg bg-linear-to-br from-white to-gray-50 rounded-3xl shadow-2xl transform animate-in zoom-in-95 duration-300">
         <button 
           onClick={() => setShowLogin(false)}
           className="absolute top-5 right-5 w-8 h-8 flex items-center justify-center bg-gray-200/50 hover:bg-gray-300/70 rounded-full transition-colors duration-200 z-20">

@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import {
   ListFilter, X, SlidersHorizontal, Search, MapPin, ArrowRight,
-  Bed, Bath, Maximize, ChevronDown, Map, LayoutGrid
+  Bed, Bath, Maximize, ChevronDown, Map, LayoutGrid, Heart, LocateFixed
 } from 'lucide-react';
 import { Property } from '@/lib/types';
 import FilterContent from '@/components/FilterContent';
@@ -14,6 +14,7 @@ import { useRouter } from 'next/navigation';
 import { ViewState } from 'react-map-gl/maplibre';
 import { FlyToInterpolator } from '@deck.gl/core';
 import Image from 'next/image';
+import { togglePropertyId, isPropertySaved, getSavedPropertyIds } from '@/lib/localStorage';
 
 const MapComponent = dynamic(() => import('@/components/Map'), {
   ssr: false,
@@ -26,9 +27,32 @@ const MapComponent = dynamic(() => import('@/components/Map'), {
 
 function PropertyCard({ prop, isSelected, onClick }: { prop: Property; isSelected: boolean; onClick: () => void }) {
   const router = useRouter();
+  const [isSaved, setIsSaved] = useState(false);
   const formatPrice = (price: number) => new Intl.NumberFormat('en-US', {
     style: 'currency', currency: 'THB', minimumFractionDigits: 0,
   }).format(price);
+
+  useEffect(() => {
+    setIsSaved(isPropertySaved(prop.id || ''));
+  }, [prop.id]);
+
+  const handleSave = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('Heart clicked, prop.id:', prop.id);
+    alert('Heart clicked! ID: ' + prop.id);
+    const propertyId = prop.id || '';
+    if (!propertyId) {
+      console.error('Property ID is empty');
+      alert('Error: Property ID is empty');
+      return;
+    }
+    const saved = togglePropertyId(propertyId);
+    console.log('Toggle result:', saved);
+    console.log('Saved properties:', getSavedPropertyIds());
+    setIsSaved(saved);
+    alert(saved ? 'Saved!' : 'Unsaved!');
+  };
 
   return (
     <div
@@ -40,12 +64,19 @@ function PropertyCard({ prop, isSelected, onClick }: { prop: Property; isSelecte
         <Image
           src={prop.imageUrls?.[0] || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80'}
           alt={prop.title}
-          layout="fill"
-          objectFit="cover"
+          fill
+          className="object-cover"
         />
         <div className="absolute top-3 left-3 bg-yellow-400 text-black text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
           {prop.type}
         </div>
+        <button
+          type="button"
+          onClick={handleSave}
+          className={`absolute top-3 right-3 p-2 rounded-full transition-colors z-10 shadow-md ${isSaved ? 'bg-red-500' : 'bg-white/90 hover:bg-white'}`}
+        >
+          <Heart size={16} className={isSaved ? 'text-white' : 'text-gray-800'} fill={isSaved ? 'currentColor' : 'none'} />
+        </button>
         {isSelected && (
           <div className="absolute inset-0 bg-yellow-500/10 border-2 border-yellow-400 rounded-2xl" />
         )}
@@ -101,6 +132,7 @@ export default function ListingsClient({ properties }: { properties: Property[] 
     pitch: 0,
     padding: { top: 20, bottom: 20, left: 20, right: 20 }
   });
+  const [userLocation, setUserLocation] = useState<{longitude: number; latitude: number} | null>(null);
 
   const handleFilterChange = (filterType: string, value: any) => {
     setFilters(prev => ({ ...prev, [filterType]: value }));
@@ -169,6 +201,33 @@ export default function ListingsClient({ properties }: { properties: Property[] 
 
   const handleViewStateChange = ({ viewState }: { viewState: ViewState }) => {
     setViewState(viewState);
+  };
+
+  const handleMyLocation = () => {
+    if (!navigator.geolocation) {
+      alert('Geolocation is not supported by your browser');
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setUserLocation({ longitude, latitude });
+        setViewState(prev => ({
+          ...prev,
+          longitude,
+          latitude,
+          zoom: 14,
+          transitionDuration: 1500,
+          transitionInterpolator: new FlyToInterpolator()
+        }));
+      },
+      (error) => {
+        console.error('Error getting location:', error);
+        alert('Unable to retrieve your location. Please check your browser permissions.');
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
   };
 
   const selectedProperty = selectedId ? properties.find(p => p.id === selectedId) : null;
@@ -263,6 +322,15 @@ export default function ListingsClient({ properties }: { properties: Property[] 
 
         {/* Map Panel */}
         <div className={`${showMobileMap ? 'block' : 'hidden md:block'} flex-1 relative`}>
+          {/* My Location Button - Top Left */}
+          <button
+            onClick={handleMyLocation}
+            className="absolute top-4 left-4 z-10 bg-white hover:bg-gray-50 text-gray-700 p-3 rounded-lg shadow-lg border border-gray-200 transition flex items-center gap-2"
+            title="My Location"
+          >
+            <LocateFixed className="w-5 h-5 text-blue-500" />
+            <span className="text-sm font-medium hidden sm:inline">My Location</span>
+          </button>
           <ClientOnly>
             <MapComponent
               properties={propertiesToDisplay}
@@ -270,6 +338,7 @@ export default function ListingsClient({ properties }: { properties: Property[] 
               onViewStateChange={handleViewStateChange}
               selectedId={selectedId}
               onSelect={handlePropertySelect}
+              userLocation={userLocation}
             />
             {selectedProperty && (
               <MapPopup

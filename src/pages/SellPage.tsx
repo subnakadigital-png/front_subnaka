@@ -13,11 +13,10 @@ export default function SellPage() {
           <Image 
             src="https://images.unsplash.com/photo-1576941089067-2de3c901e126?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80"
             alt="House keys"
-            layout="fill" 
-            objectFit="cover" 
-            className="opacity-30"
+            fill
+            className="object-cover opacity-30"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent"></div>
+          <div className="absolute inset-0 bg-linear-to-t from-gray-900 via-gray-900/80 to-transparent"></div>
         </div>
         <div className="relative z-10 text-center px-4">
           <h1 className="text-4xl md:text-5xl font-bold mb-3">Sell or Rent Your Property</h1>
@@ -37,11 +36,11 @@ export default function SellPage() {
               <div className="md:col-span-2">
                   <label className="block text-sm font-bold text-gray-700 mb-2">I want to...</label>
                   <div className="flex gap-4">
-                      <label className="flex items-center gap-2 p-4 border border-gray-200 rounded-lg cursor-pointer flex-1 hover:bg-gray-50 has-[:checked]:bg-[#CA8A04]/10 has-[:checked]:border-[#CA8A04]">
+                      <label className="flex items-center gap-2 p-4 border border-gray-200 rounded-lg cursor-pointer flex-1 hover:bg-gray-50 has-checked:bg-[#CA8A04]/10 has-checked:border-[#CA8A04]">
                           <input type="radio" name="listingType" value="sell" className="form-radio text-[#CA8A04] focus:ring-[#CA8A04]" defaultChecked />
                           <span className="font-medium text-gray-800">Sell Property</span>
                       </label>
-                      <label className="flex items-center gap-2 p-4 border border-gray-200 rounded-lg cursor-pointer flex-1 hover:bg-gray-50 has-[:checked]:bg-[#CA8A04]/10 has-[:checked]:border-[#CA8A04]">
+                      <label className="flex items-center gap-2 p-4 border border-gray-200 rounded-lg cursor-pointer flex-1 hover:bg-gray-50 has-checked:bg-[#CA8A04]/10 has-checked:border-[#CA8A04]">
                           <input type="radio" name="listingType" value="rent" className="form-radio text-[#CA8A04] focus:ring-[#CA8A04]" />
                           <span className="font-medium text-gray-800">Rent Property</span>
                       </label>

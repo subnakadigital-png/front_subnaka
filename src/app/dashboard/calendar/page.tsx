@@ -200,7 +200,7 @@ export default function CalendarPage() {
             <h3 className="text-lg font-black text-slate-800 flex items-center gap-2 mb-6">
               <Bell className="w-5 h-5 text-yellow-500" /> Agenda: {format(selectedDate, 'MMM d')}
             </h3>
-            <div className="space-y-4 flex-grow max-h-[400px] overflow-y-auto pr-2">
+            <div className="space-y-4 grow max-h-[400px] overflow-y-auto pr-2">
               {reminders.filter(r => isSameDay(parseISO(r.date), selectedDate)).length > 0 ? (
                 reminders.filter(r => isSameDay(parseISO(r.date), selectedDate))
                 .sort((a, b) => a.time.localeCompare(b.time))
@@ -234,7 +234,7 @@ export default function CalendarPage() {
 
       {/* Modal & Toast */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4">
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4">
           <div className="bg-white rounded-[32px] w-full max-w-md p-8 shadow-2xl">
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-2xl font-black text-slate-800">New Schedule</h2>
@@ -257,7 +257,7 @@ export default function CalendarPage() {
         </div>
       )}
       {showToast && (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[200] flex items-center gap-3 bg-slate-900 text-white px-6 py-4 rounded-2xl shadow-2xl animate-in slide-in-from-bottom">
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-200 flex items-center gap-3 bg-slate-900 text-white px-6 py-4 rounded-2xl shadow-2xl animate-in slide-in-from-bottom">
           <div className="bg-green-500 p-1 rounded-full"><CheckCircle2 className="w-4 h-4 text-white" /></div>
           <p className="font-bold text-sm">Action completed successfully!</p>
         </div>

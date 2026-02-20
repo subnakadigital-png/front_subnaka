@@ -12,7 +12,8 @@ import {
 } from 'lucide-react';
 import LocationPicker from '@/components/dashboard/views/LocationPicker';
 import PublicPropertyCard from '@/components/shared/PublicPropertyCard';
-import ImageModal from '@/components/ImageModal'; // Import ImageModal
+import ImageModal from '@/components/ImageModal';
+import { togglePropertyId, isPropertySaved } from '@/lib/localStorage';
 
 export default function PropertyDetailsPage() {
     const router = useRouter();
@@ -28,6 +29,9 @@ export default function PropertyDetailsPage() {
 
     useEffect(() => {
         if (id) {
+            // Check if property is saved in localStorage
+            setIsSaved(isPropertySaved(id as string));
+            
             const fetchProperty = async () => {
                 setLoading(true);
                 try {
@@ -137,7 +141,9 @@ export default function PropertyDetailsPage() {
     }
 
     const handleSaveClick = () => {
-        setIsSaved(!isSaved);
+        if (!property?.id) return;
+        const saved = togglePropertyId(property.id);
+        setIsSaved(saved);
     };
 
     const handleCloseModal = () => { // Function to close the modal
@@ -182,9 +188,8 @@ export default function PropertyDetailsPage() {
                             <Image
                                 src={galleryImages[0]}
                                 alt={property.title}
-                                layout="fill"
-                                objectFit="cover"
-                                className="transition-transform duration-300 group-hover:scale-105"
+                                fill
+                                className="object-cover transition-transform duration-300 group-hover:scale-105"
                             />
                             <div className="absolute inset-0 bg-black/20"></div>
                              {/* Watermark for the main image */}
@@ -203,9 +208,8 @@ export default function PropertyDetailsPage() {
                                 <Image
                                     src={url}
                                     alt={`Property image ${index + 2}`}
-                                    layout="fill"
-                                    objectFit="cover"
-                                    className="transition-transform duration-300 group-hover:scale-105"
+                                    fill
+                                    className="object-cover transition-transform duration-300 group-hover:scale-105"
                                 />
                                 <div className="absolute inset-0 bg-black/20"></div>
                                 {/* Watermark for small images */}
@@ -235,9 +239,8 @@ export default function PropertyDetailsPage() {
                                 <Image
                                     src={galleryImages[1]}
                                     alt={`Property image 2`}
-                                    layout="fill"
-                                    objectFit="cover"
-                                    className="transition-transform duration-300 group-hover:scale-105"
+                                    fill
+                                    className="object-cover transition-transform duration-300 group-hover:scale-105"
                                 />
                                 <div className="absolute inset-0 bg-black/20"></div>
                                 {/* Watermark */}
@@ -362,11 +365,11 @@ export default function PropertyDetailsPage() {
                             </div>
                             {property.latitude !== undefined && property.longitude !== undefined && (
                                 <div className="mt-4 flex justify-start gap-4">
-                                    <a href={`https://www.google.com/maps/dir/?api=1&destination=${property.latitude},${property.longitude}`} target="_blank" rel="noopener noreferrer" className="bg-[#CA8A04] text-white font-bold border border-gray-200 text-gray-100 font-semibold py-2 px-4 rounded-lg shadow-sm hover:bg-gray-50 transition flex items-center gap-2">
+                                    <a href={`https://www.google.com/maps/dir/?api=1&destination=${property.latitude},${property.longitude}`} target="_blank" rel="noopener noreferrer" className="bg-[#CA8A04] text-white font-bold border border-gray-200 py-2 px-4 rounded-lg shadow-sm hover:bg-gray-50 transition flex items-center gap-2">
                                         <ExternalLink className="w-5 h-5" />
                                         Get Directions
                                     </a>
-                                    <button onClick={handleShareLocation} className="bg-[#CA8A04] text-white font-bold border border-gray-200 text-gray-100 font-semibold py-2 px-4 rounded-lg shadow-sm hover:bg-gray-50 transition flex items-center gap-2">
+                                    <button onClick={handleShareLocation} className="bg-[#CA8A04] text-white font-bold border border-gray-200 py-2 px-4 rounded-lg shadow-sm hover:bg-gray-50 transition flex items-center gap-2">
                                         <Send className="w-5 h-5" />
                                         Share Location
                                     </button>

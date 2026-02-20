@@ -23,6 +23,7 @@ interface MapComponentProps {
   onViewStateChange: (params: { viewState: ViewState }) => void;
   selectedId: string | null;
   onSelect: (id: string | null) => void;
+  userLocation?: { longitude: number; latitude: number } | null;
 }
 
 const MapComponent: React.FC<MapComponentProps> = ({
@@ -30,7 +31,8 @@ const MapComponent: React.FC<MapComponentProps> = ({
   viewState,
   onViewStateChange,
   selectedId,
-  onSelect
+  onSelect,
+  userLocation
 }) => {
 
   const layers = [
@@ -45,6 +47,20 @@ const MapComponent: React.FC<MapComponentProps> = ({
       lineJointRounded: true,
       lineCapRounded: true,
     }),
+    // User Location Blue Dot Layer
+    userLocation ? new ScatterplotLayer({
+      id: 'user-location',
+      data: [{ position: [userLocation.longitude, userLocation.latitude] }],
+      getPosition: d => d.position,
+      getFillColor: [0, 122, 255], // iOS blue
+      getRadius: 80,
+      radiusMinPixels: 12,
+      radiusMaxPixels: 40,
+      filled: true,
+      stroked: true,
+      getLineColor: [255, 255, 255],
+      lineWidthMinPixels: 3,
+    }) : null,
     new IconLayer<Property>({
       id: 'icon-layer',
       data: properties,
@@ -80,7 +96,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
         getSize: 300
       }
     }),
-  ];
+  ].filter(Boolean);
 
   return (
     <div style={{ height: '100%', width: '100%', position: 'relative' }}>

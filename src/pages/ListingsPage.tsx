@@ -28,7 +28,7 @@ const AdSidebar = () => {
         <div className="bg-white rounded-2xl shadow-lg p-5 border border-gray-100">
             <h3 className="font-bold text-lg mb-4 text-gray-800">Sponsored</h3>
             <div className="relative h-40 rounded-lg overflow-hidden mb-4">
-                <Image src="https://images.unsplash.com/photo-1582407947304-fd86f028f716?auto=format&fit=crop&w=800&q=80" layout="fill" objectFit="cover" alt="Sponsored Property"/>
+                <Image src="https://images.unsplash.com/photo-1582407947304-fd86f028f716?auto=format&fit=crop&w=800&q=80" fill className="object-cover" alt="Sponsored Property"/>
             </div>
             <h4 className="font-bold text-md text-gray-900">Lakefront Luxury Villa</h4>
             <p className="text-sm text-gray-500 mb-3">Vientiane</p>

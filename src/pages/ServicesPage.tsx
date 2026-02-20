@@ -25,7 +25,7 @@ export default function ServicesPage({ onContact }: any) {
                   <button onClick={onContact} className="bg-gray-900 text-white px-6 py-3 rounded-lg font-bold hover:bg-gray-800 transition">Get a Quote</button>
               </div>
               <div className="w-full md:w-1/2 relative h-[400px]">
-                  <Image src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Construction site" layout="fill" objectFit="cover" className="rounded-2xl shadow-2xl" />
+                  <Image src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Construction site" fill className="object-cover rounded-2xl shadow-2xl" />
               </div>
           </div>
 

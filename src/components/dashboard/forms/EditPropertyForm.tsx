@@ -360,7 +360,7 @@ export default function EditPropertyForm({ property, onUpdate, onCancel }: EditP
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
             {imagePreviews.map((preview, index) => (
               <div key={preview} className="relative aspect-square">
-                <Image src={preview} alt={`Preview ${index + 1}`} layout="fill" className="object-cover rounded-lg" />
+                <Image src={preview} alt={`Preview ${index + 1}`} fill className="object-cover rounded-lg" />
                 {!isUpdating && (
                     <button type="button" onClick={() => removeImage(index, preview)} className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow-md hover:bg-red-50 transition">
                     <XCircle className="w-5 h-5 text-red-500" />
@@ -370,7 +370,7 @@ export default function EditPropertyForm({ property, onUpdate, onCancel }: EditP
             ))}
             {newImageFiles.map((imageFile) => (
               <div key={imageFile.id} className="relative aspect-square">
-                  <Image src={imageFile.preview} alt={`Preview`} layout="fill" className="object-cover rounded-lg" />
+                  <Image src={imageFile.preview} alt={`Preview`} fill className="object-cover rounded-lg" />
                   {isUpdating && imageFile.progress < 100 && (
                     <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg">
                         <div className="w-full bg-slate-200 rounded-full h-2.5 mx-2">

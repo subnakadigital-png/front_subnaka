@@ -35,8 +35,8 @@ const MapPopup: React.FC<MapPopupProps> = ({ property, onClose }) => {
                 <Image
                     src={property.imageUrls?.[0] || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80'}
                     alt={property.title}
-                    layout="fill"
-                    objectFit="cover"
+                    fill
+                    className="object-cover"
                 />
                 <div className="absolute top-3 left-3 bg-yellow-400 text-black text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
                     {property.type}

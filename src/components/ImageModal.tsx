@@ -36,13 +36,13 @@ const ImageModal: React.FC<ImageModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90 p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-white/80 backdrop-blur-sm" onClick={onClose}>
       <div
-        className="relative w-full max-w-5xl h-5/6 bg-black rounded-lg shadow-xl flex flex-col items-center justify-center"
+        className="relative w-full max-w-lg bg-linear-to-br from-white to-gray-50 rounded-3xl shadow-2xl transform animate-in zoom-in-95 duration-300"
         onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the modal content
       >
         {/* Modal Header */}
-        <div className="absolute top-0 left-0 right-0 p-4 z-10 flex justify-between items-center bg-gradient-to-b from-black/70 to-transparent">
+        <div className="absolute top-0 left-0 right-0 p-4 z-10 flex justify-between items-center bg-linear-to-b from-black/70 to-transparent">
           {/* Top Left Controls: Title */}
           <h2 className="text-white text-xl font-bold">{propertyTitle}</h2>
 
@@ -109,9 +109,8 @@ const ImageModal: React.FC<ImageModalProps> = ({
               <Image
                 src={imageUrls[currentImageIndex]}
                 alt={`Property image ${currentImageIndex + 1}`}
-                layout="fill"
-                objectFit="contain"
-                className="rounded-lg"
+                fill
+                className="object-contain rounded-lg"
               />
               {/* Watermark Overlay */}
               <Image
@@ -120,6 +119,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
                 width={150}
                 height={50}
                 className="absolute opacity-70 bottom-4 right-4 z-10 pointer-events-none"
+                unoptimized
               />
             </>
           ) : (

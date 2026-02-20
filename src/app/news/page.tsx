@@ -17,7 +17,7 @@ export default function NewsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {initialPosts.map(n => (
                         <div key={n.id} className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition">
-                            <div className="h-48 relative"><Image src={n.image} alt={n.title_en} layout="fill" objectFit="cover" /></div>
+                            <div className="h-48 relative"><Image src={n.image} alt={n.title_en} fill className="object-cover" /></div>
                             <div className="p-6">
                                 <span className="text-[10px] uppercase font-bold text-[#CA8A04] tracking-wider mb-2 block">{n.category}</span>
                                 <h3 className="font-bold text-lg mb-2">{n.title_en}</h3>

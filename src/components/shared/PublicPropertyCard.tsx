@@ -26,7 +26,7 @@ const PublicPropertyCard: React.FC<PublicPropertyCardProps> = ({ prop }) => {
 
   const handleShare = (e: React.MouseEvent) => {
     e.stopPropagation();
-    navigator.clipboard.writeText(`${window.location.origin}/property/${prop.id}`);
+    navigator.clipboard.writeText(`${window.location.origin}/listings/${prop.id}`);
     alert('Property link copied to clipboard!');
   };
 
