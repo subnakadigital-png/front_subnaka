@@ -1,0 +1,29 @@
+{
+  "firestore": {
+    "database": "(default)",
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "hosting": [
+    {
+      "site": "subnaka-la",
+      "source": ".",
+      "frameworksBackend": {
+        "codebase": "subnaka-web",
+        "region": "us-central1"
+      }
+    },
+    {
+      "site": "admin-subnaka-la",
+      "rewrites": [
+        {
+          "source": "**",
+          "run": {
+            "serviceId": "subnaka-web",
+            "region": "us-central1"
+          }
+        }
+      ]
+    }
+  ]
+}
